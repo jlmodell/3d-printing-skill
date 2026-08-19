@@ -155,7 +155,9 @@ def verify(mesh, kind, z0=0.0):
         sec = mesh.section(plane_origin=[0, 0, z], plane_normal=[0, 0, 1])
         if sec is None:
             continue
-        p, _ = sec.to_planar(to_2D=np.eye(4))
+        # to_planar was deprecated in favour of to_2D; keep working on both.
+        to_2d = getattr(sec, "to_2D", None) or sec.to_planar
+        p, _ = to_2d(to_2D=np.eye(4))
         sizes = []
         for pg in p.polygons_full:
             rings = pg.interiors if kind == "baseplate" else [pg.exterior]

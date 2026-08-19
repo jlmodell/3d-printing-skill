@@ -60,6 +60,24 @@ def feature_span(f, mesh_scale_hint=1.0):
     return mid, depth
 
 
+def _clamp_to_mesh_extent(mesh, mid, axis, depth, pad=0.02):
+    """Span the mesh along `axis`, never beyond it.
+
+    Returns (center, height) for a cylinder that covers the whole part along
+    the hole axis. Falls back to a small margin around the feature itself if
+    the projection degenerates.
+    """
+    axis = np.asarray(axis, dtype=float)
+    axis = axis / np.linalg.norm(axis)
+    proj = mesh.vertices @ axis
+    lo, hi = float(proj.min()), float(proj.max())
+    height = hi - lo
+    if not np.isfinite(height) or height <= 0:
+        return mid, depth + 2 * pad
+    center = mid + axis * ((lo + hi) / 2 - float(np.asarray(mid) @ axis))
+    return center, height
+
+
 def recut(mesh, scale, protects, origin):
     from trimesh import boolean
 
@@ -68,9 +86,24 @@ def recut(mesh, scale, protects, origin):
         mid, depth = feature_span(f)
         r = f["d"] / 2
         if f["type"] == "cyl":
-            # plug generously (radially and axially for through holes)
-            extra = depth * scale + 4 if f["extent"] == "through" else depth + 2
-            plugs.append(cylinder_at(mid, f["axis"], r + 0.4, extra))
+            # Plug generously in RADIUS, but clamp the LENGTH to the part's own
+            # extent along the hole axis.
+            #
+            # A plug that overhangs the part gets unioned in and then scaled
+            # with everything else, permanently deforming the silhouette: a
+            # 3 mm pocket in a 10 mm plate with a +4 mm axial margin produced a
+            # 19.13 mm tall part at 1.5x instead of 15 mm. Clamping to the
+            # part's own slab keeps the boolean robust (the plug still fully
+            # spans the hole) while making protrusion impossible, because a
+            # hole is by definition inside the material it is cut from.
+            #
+            # Plug volume that lands in already-solid regions is a no-op for
+            # the union. The one thing to watch is a separate cavity sitting on
+            # the same axis within r+0.4 of this hole -- that would get filled
+            # too. Check the verify step's body_count if the part has internal
+            # voids stacked over a protected hole.
+            plug_mid, plug_len = _clamp_to_mesh_extent(mesh, mid, f["axis"], depth)
+            plugs.append(cylinder_at(plug_mid, f["axis"], r + 0.4, plug_len))
         # boss: nothing to plug; we re-cut the *surroundings*? No — bosses are
         # handled by cutting away scaled boss and unioning original-size boss.
 

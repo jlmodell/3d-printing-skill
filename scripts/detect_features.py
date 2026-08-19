@@ -153,11 +153,33 @@ def main():
         if best:
             j, dist, axis = best
             used.update({i, j})
-            mid = (a["center"] + circles[j]["center"]) / 2
+            c1, c2 = a["center"], circles[j]["center"]
+            mid = (c1 + c2) / 2
             kind = "hole" if not mesh.contains([mid])[0] else "boss"
+
+            # A BLIND pocket also presents two coaxial same-radius circles --
+            # the rim at the surface and the rim where the wall meets the floor.
+            # Pairing alone therefore cannot tell blind from through; probe just
+            # past each end and ask whether there is material there.
+            eps = max(0.05, min(0.25, dist * 0.05))
+            past1 = c1 - axis * eps
+            past2 = c2 + axis * eps
+            inside1, inside2 = mesh.contains([past1, past2])
+
+            if kind == "hole" and (inside1 or inside2):
+                extent = "blind"
+                if inside2:
+                    # c2 end is closed -> c1 is the opening, axis already
+                    # points from opening into the material.
+                    center, direction = c1, axis
+                else:
+                    center, direction = c2, -axis
+            else:
+                extent, center, direction = "through", mid, axis
+
             features.append(
-                dict(center=mid, axis=axis, d=2 * a["r"], depth=dist,
-                     kind=kind, extent="through")
+                dict(center=center, axis=direction, d=2 * a["r"], depth=dist,
+                     kind=kind, extent=extent)
             )
         else:
             used.add(i)
