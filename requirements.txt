@@ -1,0 +1,19 @@
+# Core mesh stack — everything in scripts/ except stl_fallback.py needs these.
+trimesh>=4.0
+numpy>=1.24
+scipy>=1.10
+networkx>=3.0
+lxml>=4.9
+
+# manifold3d powers boolean union/difference (smart_scale --mode recut).
+manifold3d>=2.3
+
+# shapely: cavity polygons, rounded-rect profiles, baseplate outlines.
+shapely>=2.0
+
+# rtree is required for trimesh's section().polygons_full (cavity detection).
+# Without it you get a confusing ModuleNotFoundError from deep inside trimesh.
+rtree>=1.0
+
+# Optional — parametric design. Also installed by server/run_local.sh.
+# build123d>=0.5

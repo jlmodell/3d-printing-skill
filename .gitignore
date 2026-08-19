@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Render server
+server/.venv/
+
+# Build artifacts
+build/
+*.skill
+
+# Generated 3D artifacts — never commit models or G-code
+*.stl
+*.3mf
+*.gcode
+*.gcode.3mf
+*.step
+*.stp
+outputs/
+
+# The print log is personal data — keep it local
+print-log.json
+print-report.md
+
+# Local config and secrets — printer serials, LAN IPs, access codes
+.env
+*.local.md
+.bambu-slicer.local.md
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
