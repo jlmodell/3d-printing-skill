@@ -95,6 +95,31 @@ Renders are a sanity check, never evidence — matplotlib z-sorts imperfectly, s
 anything suspicious gets confirmed with a cross-section and a watertightness
 check instead.
 
+## Worked example
+
+A 80 × 60 × 10 mm plate with four features: two D6×3 magnet pockets, a D30×6
+clock-movement pocket, and a D8 decorative through-hole. Scale it to 150%.
+
+```bash
+python scripts/detect_features.py part.stl        # measure before deciding anything
+python scripts/smart_scale.py part.stl scaled.stl --scale 1.5 \
+  --protect "cyl:-30,-20,1.5,0,0,1,6.000,3.000,blind" \
+  --protect "cyl:30,-20,1.5,0,0,1,6.000,3.000,blind"
+```
+
+Measured on the output:
+
+| | before | after 1.5× | |
+| --- | --- | --- | --- |
+| Body | 80 × 60 × 10 | 120 × 90 × 15 | scaled |
+| Magnet pockets (protected) | D6.0 × 3.0 blind | **D6.0 × 3.0 blind** | held |
+| Movement pocket | D30 × 6 blind | D45 × 9 blind | scaled |
+| Decorative hole | D8 through | D12 through | scaled |
+
+The magnets still press-fit. Everything you didn't protect grew with the body.
+That distinction is the whole point — a uniform 1.5× would have left you with
+9 mm pockets and no magnet that fits them.
+
 ## Requires
 
 - Python 3.10+
