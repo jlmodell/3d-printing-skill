@@ -1,12 +1,15 @@
 # 3d-printing
 
-A Claude skill for the whole 3D printing loop on Bambu Lab printers: edit and
-design STL/3MF files, prepare and run prints, troubleshoot what went wrong, and
-keep a print log that makes the second attempt at anything cheap.
+A Claude skill for the whole 3D printing loop: edit and design STL/3MF files,
+prepare prints, troubleshoot what went wrong, and keep a print log that makes
+the second attempt cheap.
 
-Configured out of the box for a **Bambu Lab H2C with a 0.4 mm nozzle and Bambu
-PETG Basic**. One clearly marked block in `SKILL.md` is all you edit to point it
-at your own machine.
+This fork is set up for Jeff's printers: **Bambu A1, A1 mini, and X1 Carbon**
+(Bambu 3MF), a **Snapmaker U1** with four toolheads (Orca-style 3MF, filament
+slots), and an **Anycubic Kobra X** (STL, including a 0.25 mm hotend). Default
+material is **PETG at 245/70 on smooth PEI**. A Bambu printer tool is not
+required. The setup block in `SKILL.md` is the install. His notes are
+`references/jeff_*.md`.
 
 ## The problem it solves
 
@@ -23,22 +26,21 @@ numerically rather than by looking at a render.
 clearance, purge routines and start/end G-code. Hand-writing one produces a file
 that slices without complaint and can drive the toolhead into a printed part
 hours in, and you cannot tell good G-code from bad by looking at it. This skill
-refuses to invent a profile. It slices with a real one through the Bambu printer
-MCP, or hands back a project 3MF built on *your* settings, and never a third
-thing that looks like both.
+refuses to invent a profile. It hands back the file that printer uses — a Bambu
+3MF, a U1 Orca-style 3MF, or a Kobra STL — and does not require a Bambu printer
+tool to do it.
 
 **Troubleshooting starts from zero every time.** The fifth time PETG lifts off
 the bed should take thirty seconds, but only if the first four were written
-down. The bundled print log records model, material, settings, outcome and — the
-field that matters — the fix that actually worked, then queries it before
-recommending anything.
+down. Jeff's print log is `print-log.md` in the designs repo. Read it before
+recommending a setting, and append the fix that actually worked.
 
 ## Install
 
 ### Claude Code
 
 ```bash
-git clone https://github.com/TrillyD13/3d-printing-skill ~/.claude/skills/3d-printing
+git clone https://github.com/jlmodell/3d-printing-skill ~/.claude/skills/3d-printing
 pip install trimesh numpy scipy networkx lxml manifold3d shapely rtree
 ```
 
@@ -50,30 +52,26 @@ Package it as a `.skill` archive and upload it in Settings → Capabilities →
 Skills:
 
 ```bash
-git clone https://github.com/TrillyD13/3d-printing-skill
+git clone https://github.com/jlmodell/3d-printing-skill
 cd 3d-printing-skill && mkdir -p build/3d-printing
-cp -r SKILL.md references scripts server build/3d-printing/
+cp -r SKILL.md references scripts server seed build/3d-printing/
 cd build && zip -r ../3d-printing.skill 3d-printing
 ```
 
 ## Configure
 
-Open `SKILL.md` and edit the block headed **"Your setup — EDIT THIS SECTION"**.
-It is the only installation-specific part of the skill:
+Jeff's block is already filled in under **"Your setup — EDIT THIS SECTION"** in
+`SKILL.md`. Output depends on the printer. Fits, charm specs, and the
+seigaiha rules are in `references/jeff_fits.md`, `references/jeff_charms.md`,
+and `references/jeff_design_rules.md`.
 
-```yaml
-printer:     Bambu Lab H2C     # drives build volume and fit checks
-bambu_model: h2c               # p1s|p1p|p2s|x1c|x1e|a1|a1mini|h2d|h2s|h2c
-nozzle:      0.4               # mm
-material:    Bambu PETG Basic
-slicer:      bambustudio       # bambustudio | orcaslicer
-output:      3mf
-```
-
-The prose under that block explains each one and what changes if you change it.
-If you print with different hardware — a different magnet ecosystem, a different
-bearing series — swap the hardware line too; the protected-interface machinery
-works the same for any of them.
+Designs and the print log belong in
+[grokalok-jmo-3d-designs](https://github.com/jlmodell/grokalok-jmo-3d-designs):
+`designs/<project>/vN/` with a mesh, a short README, `NOTES.md`, and `images/`.
+That repo was not reachable from here, so the same tree is seeded at
+`seed/designs-repo/` (18-entry `print-log.md`, templates, Git LFS rules for
+images and STL/3MF). Google Drive "3D Prints" is the backup copy. Old
+revisions stay until he OKs a print and confirms the list.
 
 ## Workflow
 
@@ -88,8 +86,8 @@ deliver.**
 3. The edit runs through the bundled scripts or short trimesh/build123d code.
 4. The output is re-measured. Protected holes within ±0.02 mm, watertight, fits
    the build volume, paint intact if it should be.
-5. Print prep goes to the printer MCP if it's live, otherwise to a project 3MF
-   built on your own slicer settings.
+5. Print prep hands back a Bambu 3MF, a U1 Orca-style 3MF, or a Kobra STL.
+   A Bambu printer tool is optional, and only for the three Bambu machines.
 
 Renders are a sanity check, never evidence — matplotlib z-sorts imperfectly, so
 anything suspicious gets confirmed with a cross-section and a watertightness
@@ -126,9 +124,9 @@ That distinction is the whole point — a uniform 1.5× would have left you with
 - `trimesh numpy scipy networkx lxml manifold3d shapely rtree`
   (`manifold3d` powers booleans; `rtree` is needed for cavity detection and its
   absence surfaces as a confusing `ModuleNotFoundError` deep inside trimesh)
-- **Optional:** a Bambu printer MCP server for slicing, printing and live AMS
-  inventory. Without it the skill produces project 3MFs instead — everything
-  else works unchanged.
+- **Optional, and not required:** a Bambu printer tool for the A1, A1 mini, or
+  X1 Carbon. The U1 and the Kobra X are not Bambu machines. Without that tool
+  the skill still delivers the file for the target printer.
 - **Optional:** `build123d` and the bundled render server, for parametric design
   with a visual feedback loop. The server executes the modeling code you send
   it — it binds to loopback only, and [SECURITY.md](SECURITY.md) explains why
@@ -151,8 +149,9 @@ only and still covers inspection, protected scaling and STL→3MF.
 | `scripts/bambu_3mf.py` | Color assignment and paint-preserving transforms. |
 | `scripts/gridfinity_gen.py` | Spec-exact, self-verifying gridfinity baseplates and bins. |
 | `scripts/stl_fallback.py` | Dependency-free fallback for the core operations. |
-| `scripts/printlog.py` | The print log: record, query, report. |
-| `references/` | Deep reference the skill loads on demand — 3MF format, hardware specs, gridfinity constants, print prep, plate arrangement, MakerWorld, printer control, troubleshooting, build123d. |
+| `scripts/printlog.py` | Optional local JSON log. Jeff's history is the designs-repo `print-log.md`. |
+| `references/` | Deep reference loaded on demand, including `jeff_*.md` (printers, materials, fits, design rules, charms, projects, workflow). |
+| `seed/designs-repo/` | Seed for the designs repo: print log, `NOTES.md` template, project README template, Git LFS attributes. |
 | `server/` | Optional FastAPI render server for visual CAD iteration. |
 
 ## Security
