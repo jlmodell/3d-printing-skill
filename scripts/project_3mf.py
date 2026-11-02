@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Add geometry to an existing Bambu Studio project 3MF without losing anything.
 
-This is the print-output path when no slicer is available AND the Bambu_Printer
-MCP is not live. Check ListConnectors first -- that connector slices with a real
-h2c profile and is the better path when present. When it isn't: instead of
-producing G-code from a fabricated machine profile, add the new geometry to the
-user's OWN project file -- it already carries their
-printer, filament and process settings, so they open it and hit Slice.
+Bambu Studio project helper for Jeff's A1, A1 mini, and X1 Carbon. It is not
+the Snapmaker U1 path and not the Kobra X path, and a Bambu printer tool is
+not required before using it. Do not invent a machine profile. Add geometry to
+his own project file when he already has one -- it carries his printer,
+filament, and process settings, so he opens it and hits Slice. A live Bambu
+tool may slice those three machines; it must not be guessed onto a U1 or Kobra.
 
 Two operations, both preserving every other zip entry byte-for-byte, including
 per-triangle paint on untouched objects:

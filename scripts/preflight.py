@@ -189,13 +189,14 @@ def main():
     if s["ok"]:
         print("  print output      : slice locally with the detected profile")
     else:
-        print("  print output      : NO LOCAL SLICER. Check ListConnectors for the")
-        print("                      Bambu_Printer MCP FIRST -- this script cannot see MCP")
-        print("                      connectors, and that one slices with a real h2c profile.")
-        print("                      If it is live, use it (references/printer_control.md).")
-        print("                      If not, do NOT slice: emit a project 3MF reusing the")
-        print("                      user's own Metadata/project_settings.config")
-        print("                      (scripts/project_3mf.py). Never fabricate a profile.")
+        print("  print output      : NO LOCAL SLICER. Do not require a Bambu printer tool.")
+        print("                      Hand back the file from SKILL.md Your setup:")
+        print("                      Bambu 3MF for A1, A1 mini, X1 Carbon;")
+        print("                      Orca-style 3MF with filament slots for the Snapmaker U1;")
+        print("                      STL for the Anycubic Kobra X.")
+        print("                      Never fabricate a machine profile.")
+        print("                      A live Bambu tool is optional, and only for the Bambu")
+        print("                      machines (references/printer_control.md).")
     return 0
 
 

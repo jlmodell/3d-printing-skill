@@ -69,13 +69,28 @@ def main():
         out["objects"] = [summarize_mesh(scene_or_mesh)]
         out["overall_dimensions_mm"] = out["objects"][0]["dimensions_mm"]
 
-    # H2C build volume check (left-nozzle-only envelope)
-    dims = sorted(out["overall_dimensions_mm"], reverse=True)
-    h2c = sorted([325, 320, 325], reverse=True)
-    out["fits_h2c_single_nozzle"] = all(d <= v for d, v in zip(dims, h2c))
-    out["fits_h2c_dual_nozzle"] = all(
-        d <= v for d, v in zip(dims, sorted([300, 320, 325], reverse=True))
-    )
+    # Bed fit for Jeff's printers. Only axes the transcripts stated are used.
+    # Plate checks assume the two largest dimensions are the footprint (flat on
+    # the bed). Heights for the A1, A1 mini, and X1 Carbon were not recorded.
+    # The U1 note is "271 plate" with no second axis, so both footprint axes
+    # are checked against 271 mm. This is axis-aligned: a 45° diagonal fit is
+    # not credited. Kobra X was given as 260×260×260, so all three axes must fit.
+    raw = [float(x) for x in out["overall_dimensions_mm"]]
+    dims = (raw + [0.0, 0.0, 0.0])[:3]
+
+    def fits_plate(bed_x, bed_y):
+        x, y = sorted(dims, reverse=True)[:2]
+        return (x <= bed_x and y <= bed_y) or (x <= bed_y and y <= bed_x)
+
+    ordered = sorted(dims)
+    kobra = sorted((260.0, 260.0, 260.0))
+    out["fits_bed"] = {
+        "bambu_a1_256": fits_plate(256, 256),
+        "bambu_a1_mini_180": fits_plate(180, 180),
+        "bambu_x1c_256": fits_plate(256, 256),
+        "snapmaker_u1_271_plate": fits_plate(271, 271),
+        "kobra_x_260": all(d <= v for d, v in zip(ordered, kobra)),
+    }
 
     print(json.dumps(out, indent=2))
 
