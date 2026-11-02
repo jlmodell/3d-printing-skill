@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased: multi-material interlock
+
+- `references/multimaterial_interlock.md`: why soft + rigid parts peel. It
+  covers separate objects and boundary avoidance on thin parts (sliced
+  here: no beams on a 1.6 mm strip at the default), plus per-pair beam,
+  temperature and speed settings, when to use which lock, and sources.
+- `scripts/mm_interlock.py`: build123d mushroom pegs, dovetail seams and
+  rivets with defaults for 0.4 and 0.2 nozzles. `apply_lock`, `verify_pair`,
+  and a one-object multi-part 3MF export with filament slots, plus STLs.
+- `scripts/interlock_coupon.py`: a five-coupon test plate (butt, dovetail,
+  pegs, flat, rivet).
+- SKILL.md: multi-material bonding is on by default, and bonded pieces are
+  one object with parts.
+
 ## 1.0.0
 
 First public release.

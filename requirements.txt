@@ -15,5 +15,6 @@ shapely>=2.0
 # Without it you get a confusing ModuleNotFoundError from deep inside trimesh.
 rtree>=1.0
 
-# Optional — parametric design. Also installed by server/run_local.sh.
+# Optional — parametric design (also scripts/mm_interlock.py and
+# interlock_coupon.py). Also installed by server/run_local.sh.
 # build123d>=0.5

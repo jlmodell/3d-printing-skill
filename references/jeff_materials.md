@@ -78,6 +78,11 @@ TPU-GF (black) was the original base for the charm patches.
 | PLA support under TPU | Advised, because PLA barely sticks to TPU. | Frisbee is **UNTESTED**. | Frisbee |
 | HIPS under TPU or PETG | Advised. | Karambit numbers below. The profile import is **UNTESTED**. | Karambit, Keychain |
 
+Any bonded soft + rigid part also gets the designed-in lock and beam
+settings in `multimaterial_interlock.md`. That file explains why PETG peeled
+off TPU even with interlocking on: separate objects, or default boundary
+avoidance on a thin part, gives zero beams.
+
 HIPS numbers from Karambit: 235–240 °C, fan 30–50%, support interface only
 (2–3 layers), bed stays 70. A "Generic HIPS @U1" Orca profile was made from
 Generic ABS (235/240 first layer, 70 bed, 10–30% fan). Import was not tested.

@@ -16,6 +16,10 @@ figures was in the transcripts.
 - Groove **0.6 mm**. Width was not stated.
 - Art sunk **0.8 mm** into pockets.
 - Slicer interlocking **2–3 layers**.
+  On its own this is not enough on a thin charm. With the default boundary
+  avoidance (2), a 1.6 mm body slices with **no beams at all**. Use
+  avoidance 0–1, export body and art as one object with parts, and peg the
+  sunk art (`multimaterial_interlock.md`).
 - Body **TPU**, art **PLA**.
 
 The studio list does not state print orientation. Do not assume face-down.

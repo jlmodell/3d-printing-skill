@@ -132,11 +132,29 @@ drive_backup: Google Drive "3D Prints"
   - Kobra X: STL. The cloud slicer wants STL. Heavy 3MF imports freeze
     Anycubic Slicer Next.
   - In every multi-part 3MF, each piece is a separate named object.
+    **Exception:** a piece made of two materials that must stay bonded is
+    ONE object with one named part per material. Slicer interlocking only
+    works between parts of one object (see Multi-material bonding).
 - **Charms.** Default to the studio spec: 2.4 mm stitch holes, a 0.6 mm
   groove, art sunk 0.8 mm into pockets, slicer interlocking for 2–3 layers,
   TPU body and PLA art. The Charm bot's tested spec (1.7 mm holes, 1.2×0.6 mm
   groove, art sunk 0.6 mm, face-up) is the proven alternative. Do not mix
-  them. `references/jeff_charms.md`.
+  them. `references/jeff_charms.md`. Either spec also gets the
+  multi-material lock below. The studio's "2–3 layers" of interlocking does
+  nothing on a thin charm unless boundary avoidance is 0–1.
+- **Multi-material bonding — default on, every time.** Any part where TPU
+  (or another soft material) meets PETG or PLA and has to stay attached gets
+  both of these:
+  - a designed-in mechanical lock: buried dovetails for side-by-side
+    pieces, sunk art plus mushroom pegs for art on a base, rivets for TPU
+    over a rigid plate. Use `scripts/mm_interlock.py`.
+  - slicer beam interlocking: on, width 0.8, layers 2, depth 2, boundary
+    avoidance 0–1 under 5 mm thick.
+
+  Export the piece as one object with parts. First time on a new pair,
+  nozzle or printer, print `scripts/interlock_coupon.py`. Why his PETG kept
+  peeling off TPU, and the per-pair settings, are in
+  `references/multimaterial_interlock.md`.
 - **Fits, seigaiha, chamfers, hardware.** `references/jeff_fits.md`,
   `references/jeff_design_rules.md`, `references/jeff_projects.md`. Great Wave
   seigaiha is the motif he wants on almost everything. Design around the
@@ -190,6 +208,8 @@ User wants something 3D
 ├── Wants to find an existing model?  → references/makerworld.md
 ├── Which printer, or what file?      → Your setup, then references/jeff_printers.md
 ├── Material, plate, TPU, bonding?    → references/jeff_materials.md
+├── Two materials that must stay      → references/multimaterial_interlock.md
+│   bonded (TPU+PETG/PLA, charms)?      (designed lock + beam settings + coupon)
 ├── Fit, clearance, detent, flex?     → references/jeff_fits.md
 ├── Seigaiha, chamfer, construction?  → references/jeff_design_rules.md
 ├── Charm?                            → references/jeff_charms.md
@@ -202,6 +222,8 @@ User wants something 3D
 │   ├── Anycubic Kobra X              → STL
 │   ├── More than one part?           → separate named objects;
 │   │                                    references/plate_arrangement.md for the plate
+│   │                                    (bonded multi-material piece: ONE object,
+│   │                                    one part per material)
 │   └── Multi-plate 3MF handed in?    → identical-plate check, then stack if
 │                                      eligible (plate_arrangement.md)
 ├── "Print night" / batch session?    → references/plate_arrangement.md
@@ -300,6 +322,14 @@ Read `references/gridfinity.md` before changing any constant. Every generated
 part is re-measured at the four profile heights and must read
 35.60 / 37.20 / 37.20 / 41.50 mm.
 
+**Multi-material parts — `scripts/mm_interlock.py`.** When two materials have
+to stay bonded, design the lock in: `LockSpec.for_nozzle(0.4|0.2)`, then
+`mushroom_peg` / `dovetail_seam` / `rivet`, then `apply_lock(owner, other,
+features)`, `verify_pair`, and `export_parts_3mf` (one object, a part and a
+filament slot per material, plus STLs). The test plate is
+`python scripts/interlock_coupon.py --nozzle 0.4 --out <output-dir>`. Rules
+and sources are in `references/multimaterial_interlock.md`.
+
 **3. Existing model — MakerWorld.** Best for organic or sculpted shapes, and for
 anything a community has already solved well. See `references/makerworld.md`.
 
@@ -363,7 +393,9 @@ also in `seed/designs-repo/` if that repo cannot be cloned.
 
 Deliver a file. Do not require Bambu's printer tool, and do not wait on it.
 `references/plate_arrangement.md` still applies when there is more than one
-part: each piece is a separate named object.
+part: each piece is a separate named object. A bonded multi-material piece
+is the exception: one object, one part per material
+(`mm_interlock.export_parts_3mf`).
 
 - **Bambu A1, A1 mini, or X1 Carbon** → a Bambu 3MF. `scripts/bambu_3mf.py`
   and `scripts/project_3mf.py` are for those machines. If a Bambu tool happens
@@ -579,6 +611,10 @@ credentials in chat, never store them in a file.
 - Designing a multi-part assembly here instead of handing it to cad-khana, then
   discovering the fit problem after it printed.
 - Trusting a render over a cross-section.
+- A multi-material piece exported as two touching *objects*, or relying on
+  slicer interlocking alone on a thin part. Both give zero beams, and the
+  PETG peels off the TPU. Design the lock in and export one object with
+  parts (`references/multimaterial_interlock.md`).
 - Lofting rings with a zero-length extension — duplicate rings at the same z
   make manifold3d reject the solid with "Not all meshes are volumes". Same
   error appears when a loft's winding is inconsistent; call `fix_normals()`.

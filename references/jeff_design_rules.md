@@ -69,6 +69,10 @@ oozed during tool changes. What changed after that:
 PETG printed on top of TPU is a separate failure (pills, no bond). See
 `jeff_materials.md`. Do not stack PETG onto TPU and expect it to stick.
 
+The keychain layout (side by side, buried dovetail, rigid pins) is the
+`dovetail_seam` default in `scripts/mm_interlock.py`. The general rules and
+coupon are in `multimaterial_interlock.md`.
+
 ## Reference first
 
 When he sends a reference, build on it. Do not start over.

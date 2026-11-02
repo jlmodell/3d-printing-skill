@@ -148,6 +148,8 @@ only and still covers inspection, protected scaling and STL→3MF.
 | `scripts/project_3mf.py` | Adds geometry to your own project 3MF without losing paint or settings. |
 | `scripts/bambu_3mf.py` | Color assignment and paint-preserving transforms. |
 | `scripts/gridfinity_gen.py` | Spec-exact, self-verifying gridfinity baseplates and bins. |
+| `scripts/mm_interlock.py` | build123d mechanical locks (pegs, dovetails, rivets) for bonded multi-material parts; one-object multi-part 3MF export. |
+| `scripts/interlock_coupon.py` | Printable soft/rigid interlock test plate. Rules in `references/multimaterial_interlock.md`. |
 | `scripts/stl_fallback.py` | Dependency-free fallback for the core operations. |
 | `scripts/printlog.py` | Optional local JSON log. Jeff's history is the designs-repo `print-log.md`. |
 | `references/` | Deep reference loaded on demand, including `jeff_*.md` (printers, materials, fits, design rules, charms, projects, workflow). |

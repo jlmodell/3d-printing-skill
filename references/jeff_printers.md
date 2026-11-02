@@ -63,6 +63,9 @@ one head and other materials in the rest.
   2 is cream `#F3EEE0`.
 - Each printable piece is its own named object. Name color parts
   (`Zombie_shirt_blue`).
+- Exception: a piece made of two materials that must stay bonded (TPU + PETG
+  or PLA) is ONE object with a part per material, so beam interlocking can
+  act. See `multimaterial_interlock.md`.
 - Do not hand the U1 a Bambu Studio project and call it an Orca file. Do not
   invent a machine profile, start G-code, or purge routine. Slot assignment is
   filament index and color, not a fabricated printer profile.
